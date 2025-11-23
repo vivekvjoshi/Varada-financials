@@ -1,0 +1,18 @@
+[
+    {
+        "name": "John Smith",
+        "calendlyLink": "https://calendly.com/john-smith/strategy-call"
+    },
+    {
+        "name": "Sarah Johnson",
+        "calendlyLink": "https://calendly.com/sarah-johnson/strategy-call"
+    },
+    {
+        "name": "Michael Brown",
+        "calendlyLink": "https://calendly.com/michael-brown/strategy-call"
+    },
+    {
+        "name": "Emily Davis",
+        "calendlyLink": "https://calendly.com/emily-davis/strategy-call"
+    }
+]

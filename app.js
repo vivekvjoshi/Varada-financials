@@ -1,8 +1,9 @@
 // --- Global Helpers & State ---
 const steps = ['step-0', 'step-1', 'step-2', 'step-3', 'step-4'];
 let userData = {
-    firstName: '', lastName: '', email: '', phone: '', advisorName: '', path: ''
+    firstName: '', lastName: '', email: '', phone: '', advisorName: '', advisorCalendlyLink: '', path: ''
 };
+let advisors = []; // Will be loaded from advisors.json
 let players = { intro: null, final: null };
 let apiReady = false;
 
@@ -93,6 +94,12 @@ function setupFinalScreen(config) {
     const title = config.texts.finalScreenTitle.replace('{firstName}', userData.firstName);
     const el = document.getElementById('final-screen-title');
     if (el) el.textContent = title;
+
+    // Use advisor's Calendly link if available, otherwise use default
+    const calLink = document.getElementById('calendly-link');
+    if (calLink) {
+        calLink.href = userData.advisorCalendlyLink || config.calendlyUrl;
+    }
 }
 
 // Export for testing
@@ -168,6 +175,34 @@ if (typeof document !== 'undefined') {
         const calLink = document.getElementById('calendly-link');
         if (calLink) calLink.href = c.calendlyUrl;
 
+        // --- Load Advisors ---
+        async function loadAdvisors() {
+            try {
+                const response = await fetch('./advisors.json');
+                advisors = await response.json();
+
+                const advisorSelect = document.getElementById('advisor-name');
+                if (advisorSelect) {
+                    // Clear existing options except the first one
+                    advisorSelect.innerHTML = '<option value="">Select an advisor...</option>';
+
+                    // Populate dropdown with advisors
+                    advisors.forEach(advisor => {
+                        const option = document.createElement('option');
+                        option.value = advisor.name;
+                        option.textContent = advisor.name;
+                        option.dataset.calendlyLink = advisor.calendlyLink;
+                        advisorSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to load advisors:', error);
+            }
+        }
+
+        // Load advisors on page load
+        loadAdvisors();
+
         // --- Event Listeners ---
 
         // Step 0: Submit Form
@@ -185,7 +220,12 @@ if (typeof document !== 'undefined') {
                 userData.lastName = document.getElementById('lname').value;
                 userData.email = document.getElementById('email').value;
                 userData.phone = document.getElementById('phone').value;
-                userData.advisorName = document.getElementById('advisor-name').value;
+
+                // Get advisor name and Calendly link
+                const advisorSelect = document.getElementById('advisor-name');
+                userData.advisorName = advisorSelect.value;
+                const selectedOption = advisorSelect.options[advisorSelect.selectedIndex];
+                userData.advisorCalendlyLink = selectedOption.dataset.calendlyLink || c.calendlyUrl;
 
                 // Send to Sheet
                 if (c.googleSheetId && c.googleSheetId.trim() !== "") {
@@ -226,6 +266,37 @@ if (typeof document !== 'undefined') {
         if (watchedBtn) {
             watchedBtn.addEventListener('click', () => {
                 stopVideo('video-intro-player');
+                showStep('step-2');
+            });
+        }
+
+        // Step 1: Back to Form
+        const backToFormBtn = document.getElementById('back-to-form-btn');
+        if (backToFormBtn) {
+            backToFormBtn.addEventListener('click', () => {
+                stopVideo('video-intro-player');
+                showStep('step-0');
+            });
+        }
+
+        // Step 2: Back to Video
+        const backToVideoBtn = document.getElementById('back-to-video-btn');
+        if (backToVideoBtn) {
+            backToVideoBtn.addEventListener('click', () => {
+                showStep('step-1');
+                // Optionally replay the intro video
+                playVideo('video-intro-player', c.videos.intro, () => {
+                    console.log("Intro Video Ended");
+                    showStep('step-2');
+                });
+            });
+        }
+
+        // Step 3: Back to Question
+        const backToQuestionBtn = document.getElementById('back-to-question-btn');
+        if (backToQuestionBtn) {
+            backToQuestionBtn.addEventListener('click', () => {
+                stopVideo('video-final-player');
                 showStep('step-2');
             });
         }
