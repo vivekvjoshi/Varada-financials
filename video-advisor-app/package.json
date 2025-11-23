@@ -1,0 +1,9 @@
+{
+  "name": "video-advisor-app",
+  "version": "1.0.0",
+  "description": "Lead capture video advisor",
+  "main": "api/sheet-worker.js",
+  "dependencies": {
+    "googleapis": "^126.0.1"
+  }
+}
