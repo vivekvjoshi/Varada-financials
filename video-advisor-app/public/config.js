@@ -17,7 +17,7 @@ window.APP_CONFIG = {
     googleSheetId: "",
 
     // 4. Branding
-    companyName: "Varada Advisors",
+    companyName: "DB Financials",
     logoPath: "./favicon.png",
     brandColor: "#3b82f6", // Blue-500
 
