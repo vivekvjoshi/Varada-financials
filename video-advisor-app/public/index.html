@@ -174,153 +174,465 @@
     <!-- Load Config First -->
     <script src="./config.js"></script>
 </head>
-contactBtn.style.display = 'none';
-}
 
-// Texts
-document.getElementById('form-title').textContent = c.texts.formTitle;
-document.getElementById('form-subtitle').textContent = c.texts.formSubtitle;
-document.getElementById('submit-btn').textContent = c.texts.submitButton;
+<body class="bg-slate-50">
 
-document.getElementById('fname').placeholder = c.placeholders.firstName;
-document.getElementById('lname').placeholder = c.placeholders.lastName;
-document.getElementById('email').placeholder = c.placeholders.email;
-document.getElementById('phone').placeholder = c.placeholders.phone;
-document.getElementById('broker').placeholder = c.placeholders.broker;
+    <!-- Toolbar -->
+    <nav
+        class="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200 px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <img id="app-logo" src="./favicon.png" alt="Logo" class="w-8 h-8 rounded-lg shadow-sm">
+            <span id="app-name"
+                class="font-heading font-bold text-xl tracking-tight text-slate-900 hidden sm:block">Video
+                Advisor</span>
+        </div>
+        <a id="contact-btn" href="#"
+            class="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-2 bg-slate-100 hover:bg-slate-200 px-5 py-2.5 rounded-full">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                </path>
+            </svg>
+            Contact Me
+        </a>
+    </nav>
 
-document.getElementById('intro-title').textContent = c.texts.introTitle;
-document.getElementById('watched-btn').textContent = c.texts.watchedButton;
+    <!-- Main Scroll Wrapper -->
+    <div id="main-scroll-wrapper">
+        <!-- Main Container -->
+        <main id="app-container"
+            class="min-h-full flex items-center justify-center p-4 pt-28 pb-12 w-full max-w-7xl mx-auto">
 
-document.getElementById('question-title').textContent = c.texts.questionTitle;
-// Update buttons text (using span inside button now)
-document.querySelector('#opt-a-btn span').textContent = c.texts.optionA;
-document.querySelector('#opt-b-btn span').textContent = c.texts.optionB;
+            <!-- STEP 0: LEAD FORM (Split Layout) -->
+            <section id="step-0" class="w-full glass-panel rounded-[2rem] overflow-hidden slide-up shadow-2xl">
+                <div class="split-layout min-h-[600px]">
+                    <!-- Left: Image/Brand -->
+                    <div class="relative hidden lg:block bg-slate-900 overflow-hidden">
+                        <img src="./hero-image.png" alt="Financial Growth"
+                            class="absolute inset-0 w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-1000">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent">
+                        </div>
+                        <div class="absolute bottom-0 left-0 p-12 text-white z-10">
+                            <h2 class="font-heading text-4xl font-bold mb-4 leading-tight">Your Financial Future Starts
+                                Here.</h2>
+                            <p class="text-slate-300 text-lg">Get personalized advice tailored to your unique goals in
+                                just a few minutes.</p>
+                        </div>
+                    </div>
 
-document.getElementById('final-video-title').textContent = c.texts.finalTitle;
+                    <!-- Right: Form -->
+                    <div class="p-8 md:p-16 flex flex-col justify-center bg-white">
+                        <div class="max-w-md mx-auto w-full">
+                            <h1 id="form-title" class="font-heading text-3xl md:text-4xl font-bold mb-3 text-slate-900">
+                            </h1>
+                            <p id="form-subtitle" class="text-slate-500 mb-8 text-lg"></p>
 
-document.getElementById('final-screen-subtitle').textContent = c.texts.finalScreenSubtitle;
-document.getElementById('calendly-link').textContent = c.texts.calendlyButton;
-document.getElementById('calendly-link').href = c.calendlyUrl;
-document.getElementById('restart-btn').textContent = c.texts.restartButton;
+                            <form id="lead-form" class="space-y-5">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div class="space-y-1">
+                                        <label
+                                            class="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">First
+                                            Name</label>
+                                        <input type="text" id="fname" required class="input-field w-full p-4 rounded-xl"
+                                            placeholder="John">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label
+                                            class="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Last
+                                            Name</label>
+                                        <input type="text" id="lname" required class="input-field w-full p-4 rounded-xl"
+                                            placeholder="Doe">
+                                    </div>
+                                </div>
 
-// --- Event Listeners ---
+                                <div class="space-y-1">
+                                    <label
+                                        class="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Email
+                                        Address</label>
+                                    <input type="email" id="email" required class="input-field w-full p-4 rounded-xl"
+                                        placeholder="john@example.com">
+                                </div>
 
-// Step 0: Submit Form
-document.getElementById('lead-form').addEventListener('submit', async (e) => {
-e.preventDefault();
+                                <div class="space-y-1">
+                                    <label
+                                        class="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Phone
+                                        Number</label>
+                                    <input type="tel" id="phone" class="input-field w-full p-4 rounded-xl"
+                                        placeholder="(555) 123-4567">
+                                </div>
 
-const btn = document.getElementById('submit-btn');
-const originalText = btn.textContent;
-btn.textContent = "Processing...";
-btn.disabled = true;
+                                <div class="space-y-1">
+                                    <label
+                                        class="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Broker
+                                        / Company</label>
+                                    <input type="text" id="broker" class="input-field w-full p-4 rounded-xl"
+                                        placeholder="Optional">
+                                </div>
 
-userData.firstName = document.getElementById('fname').value;
-userData.lastName = document.getElementById('lname').value;
-userData.email = document.getElementById('email').value;
-userData.phone = document.getElementById('phone').value;
-userData.broker = document.getElementById('broker').value;
+                                <button type="submit" id="submit-btn"
+                                    class="btn-primary w-full py-4 rounded-xl font-bold text-lg text-white mt-8 shadow-lg shadow-blue-500/30">
+                                    Continue
+                                </button>
+                            </form>
+                            <p class="text-xs text-center text-slate-400 mt-6 flex items-center justify-center gap-1">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                Your information is securely encrypted.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-// Send to Sheet
-if (c.googleSheetId && c.googleSheetId.trim() !== "") {
-try {
-await fetch('/.netlify/functions/sheet-worker', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({
-...userData,
-timestamp: new Date().toISOString(),
-sheetId: c.googleSheetId
-})
-});
-} catch (err) {
-console.error("Sheet save failed", err);
-}
-}
+            <!-- STEP 1: INTRO VIDEO -->
+            <section id="step-1"
+                class="hidden w-full max-w-4xl glass-panel rounded-[2rem] p-6 md:p-12 slide-up bg-white">
+                <h2 id="intro-title"
+                    class="font-heading text-2xl md:text-4xl font-bold text-center mb-8 text-slate-900"></h2>
+                <div class="video-wrapper mb-10 shadow-2xl ring-1 ring-black/5">
+                    <div id="video-intro-player"></div>
+                </div>
+                <div class="flex justify-center">
+                    <button id="watched-btn"
+                        class="hidden btn-primary px-10 py-4 rounded-xl font-bold text-lg text-white shadow-xl shadow-blue-500/20 transition-all">
+                        I've watched the video
+                    </button>
+                </div>
+                <p class="text-center text-slate-400 text-sm mt-6 animate-pulse font-medium">Please watch the video to
+                    continue...</p>
+            </section>
 
-btn.textContent = originalText;
-btn.disabled = false;
+            <!-- STEP 2: QUESTION -->
+            <section id="step-2"
+                class="hidden w-full max-w-2xl glass-panel rounded-[2rem] p-8 md:p-16 slide-up text-center bg-white">
+                <h2 id="question-title" class="font-heading text-3xl md:text-4xl font-bold mb-12 text-slate-900"></h2>
+                <div class="grid gap-6">
+                    <button id="opt-a-btn"
+                        class="group relative overflow-hidden bg-white border-2 border-slate-100 hover:border-blue-500 p-8 rounded-2xl transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 text-left">
+                        <div class="flex items-center justify-between">
+                            <span
+                                class="font-heading font-bold text-xl text-slate-800 group-hover:text-blue-600 transition-colors">Option
+                                A</span>
+                            <svg class="w-6 h-6 text-slate-300 group-hover:text-blue-500 transform group-hover:translate-x-1 transition-all"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                        </div>
+                    </button>
+                    <button id="opt-b-btn"
+                        class="group relative overflow-hidden bg-white border-2 border-slate-100 hover:border-blue-500 p-8 rounded-2xl transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 text-left">
+                        <div class="flex items-center justify-between">
+                            <span
+                                class="font-heading font-bold text-xl text-slate-800 group-hover:text-blue-600 transition-colors">Option
+                                B</span>
+                            <svg class="w-6 h-6 text-slate-300 group-hover:text-blue-500 transform group-hover:translate-x-1 transition-all"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                        </div>
+                    </button>
+                </div>
+            </section>
 
-// Move to Step 1
-showStep('step-1');
-playVideo('video-intro-player', c.videos.intro, () => {
-console.log("Intro Video Ended");
-showStep('step-2');
-});
-// Fallback
-setTimeout(() => {
-document.getElementById('watched-btn').classList.remove('hidden');
-}, 5000);
-});
+            <!-- STEP 3: FINAL VIDEO -->
+            <section id="step-3"
+                class="hidden w-full max-w-4xl glass-panel rounded-[2rem] p-6 md:p-12 slide-up bg-white">
+                <h2 id="final-video-title"
+                    class="font-heading text-2xl md:text-4xl font-bold text-center mb-8 text-slate-900"></h2>
+                <div class="video-wrapper mb-10 shadow-2xl ring-1 ring-black/5">
+                    <div id="video-final-player"></div>
+                </div>
+                <div id="final-video-status" class="text-center text-slate-400 animate-pulse font-medium">
+                    Video playing...
+                </div>
+            </section>
 
-// Step 1: Manual Watched
-document.getElementById('watched-btn').addEventListener('click', () => {
-stopVideo('video-intro-player');
-showStep('step-2');
-});
+            <!-- STEP 4: FINAL SCREEN -->
+            <section id="step-4"
+                class="hidden w-full max-w-2xl glass-panel rounded-[2rem] p-8 md:p-16 slide-up text-center bg-white">
+                <div class="mb-10">
+                    <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8">
+                        <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                    <h2 id="final-screen-title" class="font-heading text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+                    </h2>
+                    <p id="final-screen-subtitle" class="text-slate-600 text-xl leading-relaxed"></p>
+                </div>
 
-// Step 2: Choose Path
-window.handleChoice = function (type) {
-userData.path = type;
+                <a id="calendly-link" href="#" target="_blank"
+                    class="btn-primary block w-full py-5 rounded-xl font-bold text-xl text-white mb-8 no-underline shadow-xl shadow-blue-500/30 hover:scale-[1.02] transition-transform">
+                    Book Strategy Call
+                </a>
 
-if (c.googleSheetId && c.googleSheetId.trim() !== "") {
-fetch('/.netlify/functions/sheet-worker', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({
-email: userData.email,
-...userData,
-timestamp: new Date().toISOString(),
-note: "Path Selected",
-sheetId: c.googleSheetId
-})
-}).catch(err => console.error("Sheet update failed", err));
-}
+                <button id="restart-btn"
+                    class="text-slate-400 hover:text-slate-600 text-sm font-medium hover:underline transition-colors">
+                    Start Over
+                </button>
+            </section>
 
-showStep('step-3');
-const videoId = type === 'recruit' ? c.videos.recruit : c.videos.sales;
+        </main>
+    </div> <!-- End Main Scroll Wrapper -->
 
-playVideo('video-final-player', videoId, () => {
-console.log("Final Video Ended");
-showStep('step-4');
-setupFinalScreen();
-});
+    <!-- Logic -->
+    <script>
+        // --- Global Helpers & State ---
+        const steps = ['step-0', 'step-1', 'step-2', 'step-3', 'step-4'];
+        let userData = {
+            firstName: '', lastName: '', email: '', phone: '', broker: '', path: ''
+        };
+        let players = { intro: null, final: null };
+        let apiReady = false;
 
-// Fallback
-setTimeout(() => {
-if (!document.getElementById('step-3-btn')) {
-const btn = document.createElement('button');
-btn.id = 'step-3-btn';
-btn.className = 'btn-primary w-full py-4 rounded-xl font-bold text-lg text-white mt-6 fade-in shadow-lg
-shadow-blue-500/30';
-btn.textContent = "Continue to Booking";
-btn.onclick = () => {
-stopVideo('video-final-player');
-showStep('step-4');
-setupFinalScreen();
-};
-document.querySelector('#step-3').appendChild(btn);
-}
-}, 10000);
-};
+        // --- YouTube API Setup ---
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-document.getElementById('opt-a-btn').addEventListener('click', () => window.handleChoice('recruit'));
-document.getElementById('opt-b-btn').addEventListener('click', () => window.handleChoice('sales'));
+        window.onYouTubeIframeAPIReady = function () {
+            apiReady = true;
+            console.log("YouTube API Ready");
+        };
 
-// Step 4: Final Screen Setup
-window.setupFinalScreen = function () {
-const title = c.texts.finalScreenTitle.replace('{firstName}', userData.firstName);
-document.getElementById('final-screen-title').textContent = title;
-};
+        function extractVideoId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : url;
+        }
 
-// Restart
-document.getElementById('restart-btn').addEventListener('click', () => {
-location.reload();
-});
+        function playVideo(playerId, videoUrl, onEndedCallback) {
+            const videoId = extractVideoId(videoUrl);
 
-// Init
-showStep('step-0');
-});
-</script>
+            if (!apiReady) {
+                console.warn("API not ready, retrying in 500ms");
+                setTimeout(() => playVideo(playerId, videoUrl, onEndedCallback), 500);
+                return;
+            }
+
+            const key = playerId === 'video-intro-player' ? 'intro' : 'final';
+
+            if (players[key]) {
+                players[key].loadVideoById(videoId);
+            } else {
+                players[key] = new YT.Player(playerId, {
+                    height: '100%',
+                    width: '100%',
+                    videoId: videoId,
+                    host: 'https://www.youtube-nocookie.com',
+                    playerVars: {
+                        'playsinline': 1,
+                        'autoplay': 1,
+                        'rel': 0,
+                        'modestbranding': 1
+                    },
+                    events: {
+                        'onStateChange': (event) => {
+                            if (event.data === YT.PlayerState.ENDED) {
+                                if (onEndedCallback) onEndedCallback();
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function stopVideo(playerId) {
+            const key = playerId === 'video-intro-player' ? 'intro' : 'final';
+            if (players[key] && typeof players[key].stopVideo === 'function') {
+                players[key].stopVideo();
+            }
+        }
+
+        function showStep(stepId) {
+            steps.forEach(id => {
+                const el = document.getElementById(id);
+                if (id === stepId) {
+                    el.classList.remove('hidden');
+                    el.classList.add('slide-up');
+                } else {
+                    el.classList.add('hidden');
+                    el.classList.remove('slide-up');
+                }
+            });
+        }
+
+        // --- Main Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const c = window.APP_CONFIG;
+            if (!c) {
+                console.error("Config not loaded!");
+                alert("Configuration Error: config.js not loaded.");
+                return;
+            }
+
+            // --- Apply Config ---
+            document.documentElement.style.setProperty('--brand-color', c.brandColor);
+
+            // Branding
+            if (c.companyName) document.getElementById('app-name').textContent = c.companyName;
+            if (c.logoPath) document.getElementById('app-logo').src = c.logoPath;
+            document.title = c.companyName || "Video Advisor";
+
+            // Contact Button
+            const contactBtn = document.getElementById('contact-btn');
+            if (c.contactEmail) {
+                contactBtn.href = `mailto:${c.contactEmail}`;
+            } else {
+                contactBtn.style.display = 'none';
+            }
+
+            // Texts
+            document.getElementById('form-title').textContent = c.texts.formTitle;
+            document.getElementById('form-subtitle').textContent = c.texts.formSubtitle;
+            document.getElementById('submit-btn').textContent = c.texts.submitButton;
+
+            document.getElementById('fname').placeholder = c.placeholders.firstName;
+            document.getElementById('lname').placeholder = c.placeholders.lastName;
+            document.getElementById('email').placeholder = c.placeholders.email;
+            document.getElementById('phone').placeholder = c.placeholders.phone;
+            document.getElementById('broker').placeholder = c.placeholders.broker;
+
+            document.getElementById('intro-title').textContent = c.texts.introTitle;
+            document.getElementById('watched-btn').textContent = c.texts.watchedButton;
+
+            document.getElementById('question-title').textContent = c.texts.questionTitle;
+            // Update buttons text (using span inside button now)
+            document.querySelector('#opt-a-btn span').textContent = c.texts.optionA;
+            document.querySelector('#opt-b-btn span').textContent = c.texts.optionB;
+
+            document.getElementById('final-video-title').textContent = c.texts.finalTitle;
+
+            document.getElementById('final-screen-subtitle').textContent = c.texts.finalScreenSubtitle;
+            document.getElementById('calendly-link').textContent = c.texts.calendlyButton;
+            document.getElementById('calendly-link').href = c.calendlyUrl;
+            document.getElementById('restart-btn').textContent = c.texts.restartButton;
+
+            // --- Event Listeners ---
+
+            // Step 0: Submit Form
+            document.getElementById('lead-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const btn = document.getElementById('submit-btn');
+                const originalText = btn.textContent;
+                btn.textContent = "Processing...";
+                btn.disabled = true;
+
+                userData.firstName = document.getElementById('fname').value;
+                userData.lastName = document.getElementById('lname').value;
+                userData.email = document.getElementById('email').value;
+                userData.phone = document.getElementById('phone').value;
+                userData.broker = document.getElementById('broker').value;
+
+                // Send to Sheet
+                if (c.googleSheetId && c.googleSheetId.trim() !== "") {
+                    try {
+                        await fetch('/.netlify/functions/sheet-worker', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                ...userData,
+                                timestamp: new Date().toISOString(),
+                                sheetId: c.googleSheetId
+                            })
+                        });
+                    } catch (err) {
+                        console.error("Sheet save failed", err);
+                    }
+                }
+
+                btn.textContent = originalText;
+                btn.disabled = false;
+
+                // Move to Step 1
+                showStep('step-1');
+                playVideo('video-intro-player', c.videos.intro, () => {
+                    console.log("Intro Video Ended");
+                    showStep('step-2');
+                });
+                // Fallback
+                setTimeout(() => {
+                    document.getElementById('watched-btn').classList.remove('hidden');
+                }, 5000);
+            });
+
+            // Step 1: Manual Watched
+            document.getElementById('watched-btn').addEventListener('click', () => {
+                stopVideo('video-intro-player');
+                showStep('step-2');
+            });
+
+            // Step 2: Choose Path
+            window.handleChoice = function (type) {
+                userData.path = type;
+
+                if (c.googleSheetId && c.googleSheetId.trim() !== "") {
+                    fetch('/.netlify/functions/sheet-worker', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: userData.email,
+                            ...userData,
+                            timestamp: new Date().toISOString(),
+                            note: "Path Selected",
+                            sheetId: c.googleSheetId
+                        })
+                    }).catch(err => console.error("Sheet update failed", err));
+                }
+
+                showStep('step-3');
+                const videoId = type === 'recruit' ? c.videos.recruit : c.videos.sales;
+
+                playVideo('video-final-player', videoId, () => {
+                    console.log("Final Video Ended");
+                    showStep('step-4');
+                    setupFinalScreen();
+                });
+
+                // Fallback
+                setTimeout(() => {
+                    if (!document.getElementById('step-3-btn')) {
+                        const btn = document.createElement('button');
+                        btn.id = 'step-3-btn';
+                        btn.className = 'btn-primary w-full py-4 rounded-xl font-bold text-lg text-white mt-6 fade-in shadow-lg shadow-blue-500/30';
+                        btn.textContent = "Continue to Booking";
+                        btn.onclick = () => {
+                            stopVideo('video-final-player');
+                            showStep('step-4');
+                            setupFinalScreen();
+                        };
+                        document.querySelector('#step-3').appendChild(btn);
+                    }
+                }, 10000);
+            };
+
+            document.getElementById('opt-a-btn').addEventListener('click', () => window.handleChoice('recruit'));
+            document.getElementById('opt-b-btn').addEventListener('click', () => window.handleChoice('sales'));
+
+            // Step 4: Final Screen Setup
+            window.setupFinalScreen = function () {
+                const title = c.texts.finalScreenTitle.replace('{firstName}', userData.firstName);
+                document.getElementById('final-screen-title').textContent = title;
+            };
+
+            // Restart
+            document.getElementById('restart-btn').addEventListener('click', () => {
+                location.reload();
+            });
+
+            // Init
+            showStep('step-0');
+        });
+    </script>
 </body>
 
 </html>
