@@ -34,8 +34,22 @@ exports.handler = async (event, context) => {
 
         let auth;
         try {
-            // We assume the user puts credentials.json in netlify/functions/ alongside this script
-            const credentials = require('./credentials.json');
+            let credentials;
+
+            // Try environment variable first (for Netlify deployment)
+            if (process.env.GOOGLE_CREDENTIALS) {
+                try {
+                    credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+                    console.log("Using credentials from environment variable");
+                } catch (parseError) {
+                    console.error("Failed to parse GOOGLE_CREDENTIALS:", parseError);
+                    throw new Error("Invalid GOOGLE_CREDENTIALS format");
+                }
+            } else {
+                // Fallback to local file (for local testing)
+                credentials = require('./credentials.json');
+                console.log("Using credentials from local file");
+            }
 
             auth = new google.auth.GoogleAuth({
                 credentials,
@@ -46,7 +60,10 @@ exports.handler = async (event, context) => {
             return {
                 statusCode: 500,
                 headers,
-                body: JSON.stringify({ error: 'Missing or invalid netlify/functions/credentials.json' })
+                body: JSON.stringify({
+                    error: 'Missing or invalid credentials. Set GOOGLE_CREDENTIALS env var or add netlify/functions/credentials.json',
+                    details: e.message
+                })
             };
         }
 
