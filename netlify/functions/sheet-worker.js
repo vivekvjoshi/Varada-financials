@@ -42,11 +42,14 @@ exports.handler = async (event, context) => {
                     throw new Error("Invalid GOOGLE_CREDENTIALS format");
                 }
             } else {
-                // Fallback to local file (for local testing)
-                try {
-                    credentials = require('./credentials.json');
+                // Fallback to local file (for local testing) using fs
+                const fs = require('fs');
+                const path = require('path');
+                const credPath = path.join(__dirname, 'credentials.json');
+                if (fs.existsSync(credPath)) {
+                    credentials = JSON.parse(fs.readFileSync(credPath, 'utf8'));
                     console.log("Using credentials from local file");
-                } catch (fileError) {
+                } else {
                     throw new Error("No credentials found. Set GOOGLE_CREDENTIALS environment variable in Netlify dashboard");
                 }
             }
