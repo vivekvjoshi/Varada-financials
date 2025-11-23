@@ -28,10 +28,6 @@ exports.handler = async (event, context) => {
         const data = JSON.parse(event.body);
 
         // 1. Load Credentials
-        // For Netlify, we can bundle credentials.json if it's in the function folder or use ENV vars.
-        // Since the user wants "drag and drop" with a zip, we'll look for credentials.json in the same directory.
-        // Note: In Netlify functions, __dirname might behave differently, but requiring a local file usually works if bundled.
-
         let auth;
         try {
             let credentials;
@@ -47,8 +43,12 @@ exports.handler = async (event, context) => {
                 }
             } else {
                 // Fallback to local file (for local testing)
-                credentials = require('./credentials.json');
-                console.log("Using credentials from local file");
+                try {
+                    credentials = require('./credentials.json');
+                    console.log("Using credentials from local file");
+                } catch (fileError) {
+                    throw new Error("No credentials found. Set GOOGLE_CREDENTIALS environment variable in Netlify dashboard");
+                }
             }
 
             auth = new google.auth.GoogleAuth({
@@ -61,7 +61,7 @@ exports.handler = async (event, context) => {
                 statusCode: 500,
                 headers,
                 body: JSON.stringify({
-                    error: 'Missing or invalid credentials. Set GOOGLE_CREDENTIALS env var or add netlify/functions/credentials.json',
+                    error: 'Missing or invalid credentials. Set GOOGLE_CREDENTIALS env var in Netlify dashboard',
                     details: e.message
                 })
             };
