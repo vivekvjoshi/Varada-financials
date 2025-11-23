@@ -1,7 +1,7 @@
 // --- Global Helpers & State ---
 const steps = ['step-0', 'step-1', 'step-2', 'step-3', 'step-4'];
 let userData = {
-    firstName: '', lastName: '', email: '', phone: '', broker: '', path: ''
+    firstName: '', lastName: '', email: '', phone: '', advisorName: '', path: ''
 };
 let players = { intro: null, final: null };
 let apiReady = false;
@@ -157,7 +157,7 @@ if (typeof document !== 'undefined') {
         setPlaceholder('lname', c.placeholders.lastName);
         setPlaceholder('email', c.placeholders.email);
         setPlaceholder('phone', c.placeholders.phone);
-        setPlaceholder('broker', c.placeholders.broker);
+        setPlaceholder('advisor-name', c.placeholders.advisorName);
 
         // Update buttons text (using span inside button now)
         const optA = document.querySelector('#opt-a-btn span');
@@ -185,7 +185,7 @@ if (typeof document !== 'undefined') {
                 userData.lastName = document.getElementById('lname').value;
                 userData.email = document.getElementById('email').value;
                 userData.phone = document.getElementById('phone').value;
-                userData.broker = document.getElementById('broker').value;
+                userData.advisorName = document.getElementById('advisor-name').value;
 
                 // Send to Sheet
                 if (c.googleSheetId && c.googleSheetId.trim() !== "") {

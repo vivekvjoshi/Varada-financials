@@ -48,6 +48,6 @@ window.APP_CONFIG = {
         lastName: "Last Name",
         email: "Email Address",
         phone: "Phone Number (Optional)",
-        broker: "Broker/Company (Optional)"
+        advisorName: "Advisor Name (Optional)"
     }
 };

@@ -78,22 +78,19 @@ exports.handler = async (event, context) => {
             };
         }
 
-        // 3. Prepare Row
+        // 3. Prepare Row - Match Google Sheets structure: Name, Email, Phone Number, Advisor Name
+        const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim();
         const row = [
-            data.timestamp || new Date().toISOString(),
-            data.firstName || '',
-            data.lastName || '',
-            data.email || '',
-            data.phone || '',
-            data.broker || '',
-            data.path || '',
-            data.note || ''
+            fullName,                    // Column A: Name
+            data.email || '',            // Column B: Email
+            data.phone || '',            // Column C: Phone Number
+            data.advisorName || ''       // Column D: Advisor Name
         ];
 
         // 4. Append to Sheet
         await sheets.spreadsheets.values.append({
             spreadsheetId: sheetId,
-            range: 'Sheet1!A:H', // Assumes Sheet1 exists
+            range: 'Lead Capture!A:D', // Updated to match sheet name and columns
             valueInputOption: 'USER_ENTERED',
             requestBody: {
                 values: [row],
