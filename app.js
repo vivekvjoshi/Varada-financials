@@ -320,20 +320,7 @@ if (typeof document !== 'undefined') {
         window.handleChoice = function (type) {
             userData.path = type;
 
-            if (c.googleSheetId && c.googleSheetId.trim() !== "") {
-                fetch('/.netlify/functions/sheet-worker', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email: userData.email,
-                        ...userData,
-                        timestamp: new Date().toISOString(),
-                        note: "Path Selected",
-                        sheetId: c.googleSheetId
-                    })
-                }).catch(err => console.error("Sheet update failed", err));
-            }
-
+            // Path is already tracked in userData, no need for a second sheet call
             showStep('step-3');
             const videoId = type === 'recruit' ? c.videos.recruit : c.videos.sales;
 
