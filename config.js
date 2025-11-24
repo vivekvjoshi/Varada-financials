@@ -14,7 +14,7 @@ window.APP_CONFIG = {
 
     // 3. Google Sheet ID (from the URL of your sheet)
     // Leave empty "" to skip saving to sheet
-    googleSheetId: "1Qj8bhNSE59Y3cDGww5r1okZ3gt1sXKhxzia4eyD0Mn8",
+    googleSheetId: "1Oj8bhNSE50Y3cDGww5rfckZ4gL1sXKhxzia4eyD0Mn8",
 
     // 4. Branding
     companyName: "DB Financials",

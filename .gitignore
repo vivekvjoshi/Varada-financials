@@ -5,3 +5,6 @@ node_modules
 # Google Service Account Credentials
 netlify/functions/credentials.json
 
+
+# Local Netlify folder
+.netlify
