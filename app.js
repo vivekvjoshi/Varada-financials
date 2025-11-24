@@ -178,7 +178,7 @@ if (typeof document !== 'undefined') {
         // --- Load Advisors ---
         async function loadAdvisors() {
             try {
-                const response = await fetch('./advisors.json');
+                const response = await fetch('./data/advisors.json');
                 advisors = await response.json();
 
                 const advisorSelect = document.getElementById('advisor-name');
@@ -298,6 +298,21 @@ if (typeof document !== 'undefined') {
             backToQuestionBtn.addEventListener('click', () => {
                 stopVideo('video-final-player');
                 showStep('step-2');
+            });
+        }
+
+        // Step 4: Back to Final Video
+        const backToFinalVideoBtn = document.getElementById('back-to-final-video-btn');
+        if (backToFinalVideoBtn) {
+            backToFinalVideoBtn.addEventListener('click', () => {
+                showStep('step-3');
+                // Replay the final video
+                const videoId = userData.path === 'recruit' ? c.videos.recruit : c.videos.sales;
+                playVideo('video-final-player', videoId, () => {
+                    console.log("Final Video Ended");
+                    showStep('step-4');
+                    setupFinalScreen(c);
+                });
             });
         }
 

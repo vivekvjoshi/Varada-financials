@@ -17,7 +17,7 @@ window.APP_CONFIG = {
     googleSheetId: "1Oj8bhNSE50Y3cDGww5rfckZ4gL1sXKhxzia4eyD0Mn8",
 
     // 4. Branding
-    companyName: "DB Financials",
+    companyName: "DB Financial Advisor",
     logoPath: "./favicon.png",
     brandColor: "#3b82f6", // Blue-500
 
