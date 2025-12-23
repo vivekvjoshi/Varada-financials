@@ -1,9 +1,9 @@
 window.APP_CONFIG = {
     // 1. YouTube Video URLs (Full Links)
     videos: {
-        intro: "https://www.youtube.com/watch?v=LXb3EKWsInQ",
-        recruit: "https://www.youtube.com/watch?v=jNQXAC9IVRw",
-        sales: "https://www.youtube.com/watch?v=aqz-KE-bpKQ"
+        intro: "https://youtu.be/jP680upz4Dw",
+        recruit: "https://youtu.be/47I8fqBZlLM",
+        sales: "https://youtu.be/bUmAaZB6D08"
     },
 
     // 2. Calendly Link
