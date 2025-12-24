@@ -197,7 +197,8 @@ if (typeof document !== 'undefined') {
                         body: JSON.stringify({
                             ...userData,
                             timestamp: new Date().toISOString(),
-                            sheetId: c.googleSheetId
+                            sheetId: c.googleSheetId,
+                            sheetTab: c.sheetTab
                         })
                     });
                 } catch (err) {

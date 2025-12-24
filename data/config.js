@@ -15,6 +15,7 @@ window.APP_CONFIG = {
     // 3. Google Sheet ID (from the URL of your sheet)
     // Leave empty "" to skip saving to sheet
     googleSheetId: "1Oj8bhNSE50Y3cDGww5rfckZ4gL1sXKhxzia4eyD0Mn8",
+    sheetTab: "Lead Capture",
 
     // 4. Branding
     companyName: "DB Financial",

@@ -70,7 +70,10 @@ exports.handler = async (event, context) => {
         // -------------------------------------------------
         const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim();
         const timestamp = data.timestamp || new Date().toISOString();
-        const tabName = data.sheetTab || 'Sheet1'; // Default tab name
+
+        // Use provided tab name or default to empty string (which implies "First Sheet" in A1 notation)
+        // Wraps in single quotes to handle spaces (e.g., 'Lead Capture'!A:H)
+        const prefix = data.sheetTab ? `'${data.sheetTab}'!` : '';
 
         // Requested Columns: Date & Time, Name, Email, Phone, Advisor Name, Feedback, Followup Date
         const rowData = [
@@ -95,7 +98,7 @@ exports.handler = async (event, context) => {
                 // Read Column C (Email) to find a match
                 // Note: Range might need adjustment if using a different tab
                 // Assumes Email is in Column C (Index 0 of the result from range C:C)
-                const rangeToSearch = `${tabName}!C:C`;
+                const rangeToSearch = `${prefix}C:C`;
 
                 const getRes = await sheets.spreadsheets.values.get({
                     spreadsheetId: sheetId,
@@ -113,7 +116,7 @@ exports.handler = async (event, context) => {
                     // Update that specific row
                     await sheets.spreadsheets.values.update({
                         spreadsheetId: sheetId,
-                        range: `${tabName}!A${rowNumber}:H${rowNumber}`,
+                        range: `${prefix}A${rowNumber}:H${rowNumber}`,
                         valueInputOption: 'USER_ENTERED',
                         requestBody: { values: [rowData] }
                     });
@@ -132,7 +135,7 @@ exports.handler = async (event, context) => {
         if (!updated) {
             await sheets.spreadsheets.values.append({
                 spreadsheetId: sheetId,
-                range: `${tabName}!A:H`,
+                range: `${prefix}A:H`,
                 valueInputOption: 'USER_ENTERED',
                 requestBody: { values: [rowData] },
             });
