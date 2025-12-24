@@ -1,9 +1,8 @@
 // --- Global Helpers & State ---
-const steps = ['step-0', 'step-1', 'step-2', 'step-3', 'step-4'];
+const steps = ['step-0', 'step-1', 'step-2', 'step-3', 'step-4', 'step-5'];
 let userData = {
-    firstName: '', lastName: '', email: '', phone: '', advisorName: '', advisorCalendlyLink: '', path: ''
+    firstName: '', lastName: '', email: '', phone: '', advisorName: '', advisorCalendlyLink: '', path: '', feedback: '', followupDate: ''
 };
-let advisors = []; // Will be loaded from advisors.json
 let players = { intro: null, final: null };
 let apiReady = false;
 
@@ -53,11 +52,21 @@ function playVideo(playerId, videoUrl, onEndedCallback) {
                 playerVars: {
                     'playsinline': 1,
                     'autoplay': 1,
+                    'mute': 1,
                     'rel': 0,
                     'modestbranding': 1
                 },
                 events: {
                     'onStateChange': (event) => {
+                        if (event.data === YT.PlayerState.PLAYING) {
+                            // Attempt to unmute when playing starts
+                            // (Browser might block if no interaction, but we have a click prior)
+                            // event.target.unMute(); 
+                            // Actually, let's keep it muted or let user unmute? 
+                            // "Auto start" usually implies visual start.
+                            // I will UNMUTE it.
+                            event.target.unMute();
+                        }
                         if (event.data === YT.PlayerState.ENDED) {
                             if (onEndedCallback) onEndedCallback();
                         }
@@ -96,9 +105,11 @@ function setupFinalScreen(config) {
     if (el) el.textContent = title;
 
     // Use advisor's Calendly link if available, otherwise use default
+    // Since Advisor Name is now a text box, we don't have a specific link per advisor.
+    // We use the default one from config.
     const calLink = document.getElementById('calendly-link');
     if (calLink) {
-        calLink.href = userData.advisorCalendlyLink || config.calendlyUrl;
+        calLink.href = config.calendlyUrl;
     }
 }
 
@@ -118,7 +129,6 @@ if (typeof document !== 'undefined') {
         const c = window.APP_CONFIG;
         if (!c) {
             console.error("Config not loaded!");
-            // alert("Configuration Error: config.js not loaded.");
             return;
         }
 
@@ -166,42 +176,35 @@ if (typeof document !== 'undefined') {
         setPlaceholder('phone', c.placeholders.phone);
         setPlaceholder('advisor-name', c.placeholders.advisorName);
 
-        // Update buttons text (using span inside button now)
+        // Update buttons text
         const optA = document.querySelector('#opt-a-btn span');
         if (optA) optA.textContent = c.texts.optionA;
         const optB = document.querySelector('#opt-b-btn span');
         if (optB) optB.textContent = c.texts.optionB;
+        const optC = document.querySelector('#opt-c-btn span');
+        if (optC) optC.textContent = c.texts.optionC;
 
         const calLink = document.getElementById('calendly-link');
         if (calLink) calLink.href = c.calendlyUrl;
 
-        // --- Load Advisors ---
-        async function loadAdvisors() {
-            try {
-                const response = await fetch('./data/advisors.json');
-                advisors = await response.json();
-
-                const advisorSelect = document.getElementById('advisor-name');
-                if (advisorSelect) {
-                    // Clear existing options except the first one
-                    advisorSelect.innerHTML = '<option value="">Select an advisor...</option>';
-
-                    // Populate dropdown with advisors
-                    advisors.forEach(advisor => {
-                        const option = document.createElement('option');
-                        option.value = advisor.name;
-                        option.textContent = advisor.name;
-                        option.dataset.calendlyLink = advisor.calendlyLink;
-                        advisorSelect.appendChild(option);
+        // --- Helper to Send to Sheet ---
+        async function sendToSheet() {
+            if (c.googleSheetId && c.googleSheetId.trim() !== "") {
+                try {
+                    await fetch('/.netlify/functions/sheet-worker', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            ...userData,
+                            timestamp: new Date().toISOString(),
+                            sheetId: c.googleSheetId
+                        })
                     });
+                } catch (err) {
+                    console.error("Sheet save failed", err);
                 }
-            } catch (error) {
-                console.error('Failed to load advisors:', error);
             }
         }
-
-        // Load advisors on page load
-        loadAdvisors();
 
         // --- Event Listeners ---
 
@@ -220,29 +223,11 @@ if (typeof document !== 'undefined') {
                 userData.lastName = document.getElementById('lname').value;
                 userData.email = document.getElementById('email').value;
                 userData.phone = document.getElementById('phone').value;
+                userData.advisorName = document.getElementById('advisor-name').value;
+                userData.path = "Started";
 
-                // Get advisor name and Calendly link
-                const advisorSelect = document.getElementById('advisor-name');
-                userData.advisorName = advisorSelect.value;
-                const selectedOption = advisorSelect.options[advisorSelect.selectedIndex];
-                userData.advisorCalendlyLink = selectedOption.dataset.calendlyLink || c.calendlyUrl;
-
-                // Send to Sheet
-                if (c.googleSheetId && c.googleSheetId.trim() !== "") {
-                    try {
-                        await fetch('/.netlify/functions/sheet-worker', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                ...userData,
-                                timestamp: new Date().toISOString(),
-                                sheetId: c.googleSheetId
-                            })
-                        });
-                    } catch (err) {
-                        console.error("Sheet save failed", err);
-                    }
-                }
+                // Send Lead Data
+                await sendToSheet();
 
                 btn.textContent = originalText;
                 btn.disabled = false;
@@ -284,7 +269,6 @@ if (typeof document !== 'undefined') {
         if (backToVideoBtn) {
             backToVideoBtn.addEventListener('click', () => {
                 showStep('step-1');
-                // Optionally replay the intro video
                 playVideo('video-intro-player', c.videos.intro, () => {
                     console.log("Intro Video Ended");
                     showStep('step-2');
@@ -307,27 +291,27 @@ if (typeof document !== 'undefined') {
             backToFinalVideoBtn.addEventListener('click', () => {
                 showStep('step-3');
                 // Replay the final video
-                const videoId = userData.path === 'recruit' ? c.videos.recruit : c.videos.sales;
+                const videoId = (userData.path === 'education') ? c.videos.recruit : c.videos.sales;
                 playVideo('video-final-player', videoId, () => {
                     console.log("Final Video Ended");
                     showStep('step-4');
-                    setupFinalScreen(c);
                 });
             });
         }
 
         // Step 2: Choose Path
         window.handleChoice = function (type) {
-            userData.path = type;
+            userData.path = type; // "education", "income", or "both"
 
-            // Path is already tracked in userData, no need for a second sheet call
             showStep('step-3');
-            const videoId = type === 'recruit' ? c.videos.recruit : c.videos.sales;
+
+            // Logic: Option 1 (education) -> Video 2 (recruit)
+            // Option 2 (income) & 3 (both) -> Video 3 (sales)
+            const videoId = (type === 'education') ? c.videos.recruit : c.videos.sales;
 
             playVideo('video-final-player', videoId, () => {
                 console.log("Final Video Ended");
-                showStep('step-4');
-                setupFinalScreen(c);
+                showStep('step-4'); // Go to Feedback Form
             });
 
             // Fallback
@@ -336,11 +320,10 @@ if (typeof document !== 'undefined') {
                     const btn = document.createElement('button');
                     btn.id = 'step-3-btn';
                     btn.className = 'btn-primary w-full py-4 rounded-xl font-bold text-lg text-white mt-6 fade-in shadow-lg shadow-blue-500/30';
-                    btn.textContent = "Continue to Booking";
+                    btn.textContent = "Continue";
                     btn.onclick = () => {
                         stopVideo('video-final-player');
                         showStep('step-4');
-                        setupFinalScreen(c);
                     };
                     const s3 = document.querySelector('#step-3');
                     if (s3) s3.appendChild(btn);
@@ -349,10 +332,38 @@ if (typeof document !== 'undefined') {
         };
 
         const optABtn = document.getElementById('opt-a-btn');
-        if (optABtn) optABtn.addEventListener('click', () => window.handleChoice('recruit'));
+        if (optABtn) optABtn.addEventListener('click', () => window.handleChoice('education'));
 
         const optBBtn = document.getElementById('opt-b-btn');
-        if (optBBtn) optBBtn.addEventListener('click', () => window.handleChoice('sales'));
+        if (optBBtn) optBBtn.addEventListener('click', () => window.handleChoice('income'));
+
+        const optCBtn = document.getElementById('opt-c-btn');
+        if (optCBtn) optCBtn.addEventListener('click', () => window.handleChoice('both'));
+
+        // Step 4: Feedback Form Submit
+        const feedbackForm = document.getElementById('feedback-form');
+        if (feedbackForm) {
+            feedbackForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const btn = document.getElementById('feedback-submit-btn');
+                const originalText = btn.textContent;
+                btn.textContent = "Sending...";
+                btn.disabled = true;
+
+                userData.feedback = document.getElementById('feedback-text').value;
+                userData.followupDate = document.getElementById('followup-date').value;
+
+                // Send Final Data
+                await sendToSheet();
+
+                btn.textContent = originalText;
+                btn.disabled = false;
+
+                showStep('step-5');
+                setupFinalScreen(c);
+            });
+        }
 
         // Restart
         const restartBtn = document.getElementById('restart-btn');

@@ -32,26 +32,19 @@ exports.handler = async (event, context) => {
         try {
             let credentials;
             if (process.env.GOOGLE_CREDENTIALS) {
-                // Env‑var contains raw JSON (single line)
                 try {
                     credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
-                    console.log('Using credentials from environment variable');
                 } catch (parseError) {
-                    console.error('Failed to parse GOOGLE_CREDENTIALS:', parseError);
                     throw new Error('Invalid GOOGLE_CREDENTIALS format');
                 }
             } else {
-                // Local fallback (useful for dev)
                 const fs = require('fs');
                 const path = require('path');
                 const credPath = path.join(__dirname, 'credentials.json');
                 if (fs.existsSync(credPath)) {
                     credentials = JSON.parse(fs.readFileSync(credPath, 'utf8'));
-                    console.log('Using credentials from local file');
                 } else {
-                    throw new Error(
-                        'No credentials found. Set GOOGLE_CREDENTIALS environment variable in Netlify dashboard'
-                    );
+                    throw new Error('No credentials found.');
                 }
             }
 
@@ -61,14 +54,7 @@ exports.handler = async (event, context) => {
             });
         } catch (e) {
             console.error('Credentials error:', e);
-            return {
-                statusCode: 500,
-                headers,
-                body: JSON.stringify({
-                    error: 'Missing or invalid credentials. Set GOOGLE_CREDENTIALS env var in Netlify dashboard',
-                    details: e.message,
-                }),
-            };
+            return { statusCode: 500, headers, body: JSON.stringify({ error: e.message }) };
         }
 
         const sheets = google.sheets({ version: 'v4', auth });
@@ -77,65 +63,94 @@ exports.handler = async (event, context) => {
         // 2️⃣ Validate required fields
         // -------------------------------------------------
         const sheetId = data.sheetId;
-        if (!sheetId) {
-            return {
-                statusCode: 400,
-                headers,
-                body: JSON.stringify({ error: 'Missing Sheet ID' }),
-            };
-        }
+        if (!sheetId) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing Sheet ID' }) };
 
         // -------------------------------------------------
-        // 3️⃣ Build the row to insert
+        // 3️⃣ Prepare Data
         // -------------------------------------------------
         const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim();
-        const row = [
-            fullName,                // Column A – Name
-            data.email || '',        // Column B – Email
-            data.phone || '',        // Column C – Phone
-            data.advisorName || '',  // Column D – Advisor Name
+        const timestamp = data.timestamp || new Date().toISOString();
+        const tabName = data.sheetTab || 'Sheet1'; // Default tab name
+
+        // Requested Columns: Date & Time, Name, Email, Phone, Advisor Name, Feedback, Followup Date
+        const rowData = [
+            timestamp,               // A
+            fullName,                // B
+            data.email || '',        // C (Key for lookup)
+            data.phone || '',        // D
+            data.advisorName || '',  // E
+            data.feedback || '',     // F
+            data.followupDate || '', // G
+            data.path || ''          // H
         ];
 
         // -------------------------------------------------
-        // 4️⃣ Determine the range (tab name optional)
+        // 4️⃣ Check for Existing Row (Update Logic)
         // -------------------------------------------------
-        // If you send `sheetTab` in the request, use it; otherwise just use columns A:D on the first sheet.
-        // Default to the "Lead Capture" tab if no sheetTab is supplied
-        const range = data.sheetTab ? `${data.sheetTab}!A:D` : 'Lead Capture!A:D';
+        let updated = false;
+
+        // Only try to find and update if we have an email
+        if (data.email) {
+            try {
+                // Read Column C (Email) to find a match
+                // Note: Range might need adjustment if using a different tab
+                // Assumes Email is in Column C (Index 0 of the result from range C:C)
+                const rangeToSearch = `${tabName}!C:C`;
+
+                const getRes = await sheets.spreadsheets.values.get({
+                    spreadsheetId: sheetId,
+                    range: rangeToSearch,
+                });
+
+                const rows = getRes.data.values || [];
+                // Find index where email matches
+                const rowIndex = rows.findIndex(r => r[0] && r[0].toLowerCase() === data.email.toLowerCase());
+
+                if (rowIndex !== -1) {
+                    // Row numbers are 1-based. rowIndex 0 is Row 1.
+                    const rowNumber = rowIndex + 1;
+
+                    // Update that specific row
+                    await sheets.spreadsheets.values.update({
+                        spreadsheetId: sheetId,
+                        range: `${tabName}!A${rowNumber}:H${rowNumber}`,
+                        valueInputOption: 'USER_ENTERED',
+                        requestBody: { values: [rowData] }
+                    });
+
+                    console.log(`Updated existing row ${rowNumber} for ${data.email}`);
+                    updated = true;
+                }
+            } catch (err) {
+                console.warn("Could not search for existing row, falling back to append.", err.message);
+            }
+        }
 
         // -------------------------------------------------
-        // 5️⃣ Append the row
+        // 5️⃣ Append if not updated
         // -------------------------------------------------
-        await sheets.spreadsheets.values.append({
-            spreadsheetId: sheetId,
-            range,
-            valueInputOption: 'USER_ENTERED',
-            requestBody: { values: [row] },
-        });
+        if (!updated) {
+            await sheets.spreadsheets.values.append({
+                spreadsheetId: sheetId,
+                range: `${tabName}!A:H`,
+                valueInputOption: 'USER_ENTERED',
+                requestBody: { values: [rowData] },
+            });
+            console.log(`Appended new row for ${data.email || 'unknown'}`);
+        }
 
-        // -------------------------------------------------
-        // 6️⃣ Success response
-        // -------------------------------------------------
         return {
             statusCode: 200,
             headers,
-            body: JSON.stringify({ success: true }),
+            body: JSON.stringify({ success: true, updated }),
         };
+
     } catch (error) {
-        // -------------------------------------------------
-        // 7️⃣ Detailed error logging (helps debugging)
-        // -------------------------------------------------
         console.error('Sheet Error:', error);
-        console.log('Request body:', event.body);
-        const errorResponse = {
-            message: error.message,
-            // Include the first line of the stack trace for brevity
-            stack: error.stack ? error.stack.split('\n')[0] : undefined,
-        };
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({ error: errorResponse }),
+            body: JSON.stringify({ error: error.message }),
         };
     }
 };

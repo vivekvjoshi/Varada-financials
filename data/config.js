@@ -30,9 +30,10 @@ window.APP_CONFIG = {
         introTitle: "Watch this first",
         watchedButton: "I've watched the video",
 
-        questionTitle: "What describes you best?",
-        optionA: "I want to recruit agents",
-        optionB: "I want to sell more policies",
+        questionTitle: "Choices For You",
+        optionA: "Education about Financial Concepts & Get Your Financial Health Check",
+        optionB: "Interested in Leveraged Income",
+        optionC: "Both", // Not used in original code but useful if we genericize
 
         finalTitle: "Here is your plan",
 
@@ -46,8 +47,8 @@ window.APP_CONFIG = {
     placeholders: {
         firstName: "First Name",
         lastName: "Last Name",
-        email: "Email Address",
-        phone: "Phone Number (Optional)",
-        advisorName: "Advisor Name (Optional)"
+        email: "Email Address (Optional)",
+        phone: "Phone Number",
+        advisorName: "Advisor Name"
     }
 };
