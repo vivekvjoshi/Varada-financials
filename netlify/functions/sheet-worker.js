@@ -92,13 +92,12 @@ exports.handler = async (event, context) => {
         // -------------------------------------------------
         let updated = false;
 
-        // Only try to find and update if we have an email
-        if (data.email) {
+        // Only try to find and update if we have a phone number (since it's mandatory)
+        if (data.phone && fullName) {
             try {
-                // Read Column C (Email) to find a match
-                // Note: Range might need adjustment if using a different tab
-                // Assumes Email is in Column C (Index 0 of the result from range C:C)
-                const rangeToSearch = `${prefix}C:C`;
+                // Read Columns B to D (Name, Email, Phone)
+                // Row[0] = Name, Row[1] = Email, Row[2] = Phone
+                const rangeToSearch = `${prefix}B:D`;
 
                 const getRes = await sheets.spreadsheets.values.get({
                     spreadsheetId: sheetId,
@@ -106,8 +105,17 @@ exports.handler = async (event, context) => {
                 });
 
                 const rows = getRes.data.values || [];
-                // Find index where email matches
-                const rowIndex = rows.findIndex(r => r[0] && r[0].toLowerCase() === data.email.toLowerCase());
+
+                // Find index where Phone AND Name match
+                // Phone is mandatory and unique-ish, Name confirms identity.
+                const searchPhone = String(data.phone).trim();
+                const searchName = fullName.toLowerCase();
+
+                const rowIndex = rows.findIndex(r => {
+                    const rowName = (r[0] || '').toLowerCase().trim();
+                    const rowPhone = String(r[2] || '').trim();
+                    return rowPhone === searchPhone && rowName === searchName;
+                });
 
                 if (rowIndex !== -1) {
                     // Row numbers are 1-based. rowIndex 0 is Row 1.
@@ -121,7 +129,7 @@ exports.handler = async (event, context) => {
                         requestBody: { values: [rowData] }
                     });
 
-                    console.log(`Updated existing row ${rowNumber} for ${data.email}`);
+                    console.log(`Updated existing row ${rowNumber} for Phone: ${data.phone} & Name: ${fullName}`);
                     updated = true;
                 }
             } catch (err) {
