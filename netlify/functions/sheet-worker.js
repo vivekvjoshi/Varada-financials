@@ -69,7 +69,15 @@ exports.handler = async (event, context) => {
         // 3️⃣ Prepare Data
         // -------------------------------------------------
         const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim();
-        const timestamp = data.timestamp || new Date().toISOString();
+
+        // Convert input timestamp (UTC) to Toronto Time
+        const rawDate = data.timestamp ? new Date(data.timestamp) : new Date();
+        const timestamp = rawDate.toLocaleString('en-CA', {
+            timeZone: 'America/Toronto',
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            hour12: false
+        }).replace(', ', ' '); // Format: YYYY-MM-DD HH:mm:ss
 
         // Use provided tab name or default to empty string (which implies "First Sheet" in A1 notation)
         // Wraps in single quotes to handle spaces (e.g., 'Lead Capture'!A:H)
