@@ -239,7 +239,9 @@
 
                     <div class="space-y-2">
                         <label class="font-heading font-bold text-lg text-slate-800">Preferred Follow-up Date</label>
-                        <input type="date" id="followup-date" class="input-field w-full p-4 rounded-xl">
+                        <input type="text" id="followup-date" placeholder="Select a date"
+                            class="input-field w-full p-4 rounded-xl" onfocus="(this.type='date')"
+                            onblur="if(!this.value)this.type='text'">
                     </div>
 
                     <button type="submit" id="feedback-submit-btn"
