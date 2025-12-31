@@ -26,10 +26,10 @@ window.APP_CONFIG = {
     texts: {
         formTitle: "Let's Get Started",
         formSubtitle: "Enter your details to begin.",
-        submitButton: "Continue to Video",
+        submitButton: "Continue to Video (Click to Proceed)",
 
         introTitle: "Watch this first",
-        watchedButton: "I've watched the video",
+        watchedButton: "I've watched the video (Click to Proceed)",
 
         questionTitle: "Choices For You",
         optionA: "Education about Financial Concepts & Get Your Financial Health Check",
